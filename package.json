@@ -3,6 +3,8 @@
     "version": "0.0.0",
     "private": true,
     "devDependencies": {
+        "@types/express": "^4.17.21",
+        "@types/ws": "^8.5.10",
         "@typescript-eslint/eslint-plugin": "^6.0.0",
         "@typescript-eslint/parser": "^6.0.0",
         "@vitejs/plugin-vue": "^4.2.3",
@@ -10,9 +12,11 @@
         "concurrently": "^8.2.0",
         "dotenv": "^16.3.1",
         "eslint": "^8.53.0",
+        "express": "^4.18.2",
         "sass": "^1.63.6",
         "typescript": "^5.1.6",
-        "vite": "^4.4.3"
+        "vite": "^4.4.3",
+        "ws": "^8.16.0"
     },
     "scripts": {
         "dev": "concurrently --raw --kill-others \"vite\" \"tsc --noEmit --watch --incremental --preserveWatchOutput\"",

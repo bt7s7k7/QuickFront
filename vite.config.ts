@@ -10,15 +10,20 @@ export default defineConfig(() => {
     dotenv.config({ path: join(__dirname, ".env") })
 
     return {
+        appType: "mpa",
         plugins: [vue(), vueJsx()],
         resolve: {
             preserveSymlinks: true
         },
         server: {
             port: +(process.env.PORT ?? 8080),
-            /* proxy: {
-                "^/api": { target: process.env.BACKEND_URL, changeOrigin: true },
-            } */
+            proxy: {
+                "^/api": {
+                    target: "http://localhost:8081/",
+                    changeOrigin: true,
+                    ws: true,
+                }
+            }
         }
     }
 })
