@@ -1,13 +1,14 @@
 import { markRaw } from "vue"
+import { FieldOptions } from "../formBuilder/FieldDrawer"
 import { Form } from "../formML/Form"
-import { Binding } from "../formML/Binding"
 import { Type } from "../struct/Type"
 
 export interface MountRegistration {
     target: string
     form: Form
-    binding?: Binding
+    path?: string[]
     type?: Type<any>
+    fieldOptions?: Partial<FieldOptions>
 }
 
 export const MOUNT_LIST: MountRegistration[] = []

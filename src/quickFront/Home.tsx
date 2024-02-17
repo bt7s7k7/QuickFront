@@ -13,9 +13,9 @@ const _MountedForm = defineComponent({
         const formViewForm = useForm({
             value: STATE.value,
             form: props.registration.form,
-            binding: props.registration.binding,
+            path: props.registration.path,
             type: props.registration.type,
-
+            fieldOptions: props.registration.fieldOptions
         })
 
         return () => (
