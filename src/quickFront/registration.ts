@@ -4,8 +4,8 @@ import { Form } from "../formML/Form"
 import { Type } from "../struct/Type"
 
 export interface MountRegistration {
-    target: string
-    form: Form
+    target: string | HTMLElement
+    form?: Form
     path?: string[]
     type?: Type<any>
     fieldOptions?: Partial<FieldOptions>
@@ -13,9 +13,7 @@ export interface MountRegistration {
 
 export const MOUNT_LIST: MountRegistration[] = []
 
-Object.assign(window, {
-    registerForm(registration: MountRegistration) {
-        markRaw(registration)
-        MOUNT_LIST.push(registration)
-    }
-})
+export function registerForm(registration: MountRegistration) {
+    markRaw(registration)
+    MOUNT_LIST.push(registration)
+}

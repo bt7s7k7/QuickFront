@@ -1,8 +1,10 @@
 import { createApp } from "vue"
-import { App } from "./app/App"
+import { App, startApp } from "./app/App"
 import * as binding from "./formML/Binding"
 import * as form from "./formML/Form"
 import * as customFields from "./quickFront/customFields"
+import { registerForm } from "./quickFront/registration"
+import { STATE, useWebsocketConnection } from "./quickFront/state"
 import * as mutation from "./struct/Mutation"
 import * as struct from "./struct/Struct"
 import * as type from "./struct/Type"
@@ -11,7 +13,11 @@ import "./vue3gui/theme/light.scss"
 import { vue3gui } from "./vue3gui/vue3gui"
 
 Object.assign(window,
-    type, struct, mutation, binding, form, customFields
+    type, struct, mutation, binding, form, customFields,
+    {
+        startApp, STATE, useWebsocketConnection, registerForm,
+        "_OUTPUT": customFields.makeOutput()
+    }
 )
 
 const app = createApp(App)

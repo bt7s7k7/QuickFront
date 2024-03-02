@@ -1,7 +1,7 @@
 import { defineComponent } from "vue"
 import { toString } from "../comTypes/util"
 import { getFieldDrawerProps, registerFieldDrawer, useFieldDrawerValue } from "../formBuilder/FieldDrawer"
-import { CustomFieldAttribute, FormField_t, LabelAttribute } from "../formML/Form"
+import { CustomFieldAttribute, FormField_t, InfoField, LabelAttribute } from "../formML/Form"
 import { Struct } from "../struct/Struct"
 import { Type } from "../struct/Type"
 import { Button } from "../vue3gui/Button"
@@ -65,5 +65,11 @@ export function makeButton(label: string, options: { action: string, path?: stri
 export function makeOutput(mapper = OutputField.props.mapper.default()) {
     return Type.empty.as(Type.annotate,
         new CustomFieldAttribute(new OutputField({ mapper }))
+    )
+}
+
+export function makeInfo(decoration: InfoField["decoration"], text: string) {
+    return Type.empty.as(Type.annotate,
+        new CustomFieldAttribute(new InfoField({ text, decoration }))
     )
 }

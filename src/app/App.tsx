@@ -2,12 +2,11 @@ import { defineComponent, ref } from "vue"
 import { Home } from "../quickFront/Home"
 import { DynamicsEmitter, useDynamicsEmitter } from "../vue3gui/DynamicsEmitter"
 
-const active = ref(false)
-Object.assign(window, {
-    startApp() {
-        active.value = true
-    }
-})
+export const APP_ACTIVE = ref(false)
+export function startApp(exports?: object) {
+    if (exports) Object.assign(window, exports)
+    APP_ACTIVE.value = true
+}
 
 const _DynamicEmitterShare = defineComponent({
     name: "_DynamicEmitterShare",
@@ -25,7 +24,7 @@ export const App = defineComponent({
         return () => (
             <DynamicsEmitter>
                 <_DynamicEmitterShare />
-                {active.value && <Home />}
+                {APP_ACTIVE.value && <Home />}
             </DynamicsEmitter>
         )
     }
