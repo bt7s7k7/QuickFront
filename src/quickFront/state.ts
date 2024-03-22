@@ -7,6 +7,7 @@ export const STATE = new class State {
     public readonly value = ref<any>(null)
     public actionHandler: ((action: string, data: any) => void) | null = null
     public postSync: ((value: any) => void) | null = null
+    public disposer: (() => void) | null = null
 
     public action(action: string, data: any) {
         if (this.actionHandler == null) {
@@ -16,6 +17,11 @@ export const STATE = new class State {
         }
 
         this.actionHandler(action, data)
+    }
+
+    public dispose() {
+        this.disposer?.()
+        this.disposer = null
     }
 
     public sync(data: any) {
@@ -35,6 +41,7 @@ export function useWebsocketConnection(url: string | URL) {
 
         const connect = () => {
             const socket = new WebSocket(url)
+            STATE.disposer = () => { terminate = true; socket.close() }
             socket.addEventListener("open", () => {
                 info.remove()
 
@@ -57,6 +64,7 @@ export function useWebsocketConnection(url: string | URL) {
             })
 
             let error = false
+            let terminate = false
             socket.addEventListener("error", () => {
                 info.innerHTML = "Connection error! Attempting reconnect..."
                 info.classList.add("text-danger")
@@ -64,6 +72,7 @@ export function useWebsocketConnection(url: string | URL) {
             })
 
             socket.addEventListener("close", () => {
+                if (terminate) return
                 setTimeout(() => {
                     if (!error) {
                         location.reload()
