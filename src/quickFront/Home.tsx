@@ -4,6 +4,7 @@ import { Optional } from "../comTypes/Optional"
 import { escapeRegex, isWhitespace } from "../comTypes/util"
 import { FormView } from "../formBuilder/FormView"
 import { useForm } from "../formBuilder/useForm"
+import { Mutation } from "../struct/Mutation"
 import { Type } from "../struct/Type"
 import { makeInfo } from "./customFields"
 import { MOUNT_LIST, MountRegistration, registerForm } from "./registration"
@@ -67,9 +68,26 @@ export const Home = (defineComponent({
         for (const target of document.querySelectorAll("[form-type]") as NodeListOf<HTMLElement>) {
             const options: MountRegistration = { target }
 
-            Optional.value(target.getAttribute("form-type")).notNull().do(v => (window as any)[v]).filter(v => Type.isType(v)).do(v => options.type = v)
-            Optional.value(target.getAttribute("label-width")).notNull().do(v => +v).notNaN().do(v => options.fieldOptions = { labelWidth: v })
-            Optional.value(target.getAttribute("path")).notNull().try(v => v.startsWith("'") ? JSON.parse(`[${v}]`) : v.split(".")).filterType(Array).assertType<string[]>().do(v => options.path = v)
+            function parseAttribute<T, U>(attributeName: string, parse: (v: string) => T, verify: (v: Optional<T>) => Optional<U>, path: (v: Mutation.TypedPath<typeof options>) => any) {
+                const optionalValue = Optional.value(target.getAttribute(attributeName)).notNull().try(parse) as Optional<T>
+                const optionalVerified = verify(optionalValue)
+
+                optionalVerified.do(value => {
+                    const pathActual = Mutation.getPath(path(Mutation.typedPath(null)))
+                    const final = pathActual.pop()!
+
+                    let assignTarget = options as any
+                    for (const segment of pathActual) {
+                        assignTarget[segment] ??= {}
+                        assignTarget = assignTarget[segment]
+                    }
+                    assignTarget[final] = value
+                })
+            }
+
+            parseAttribute("form-type", v => (window as any)[v], v => v.filter(v => Type.isType(v)), v => v.type)
+            parseAttribute("path", v => v.startsWith("'") ? JSON.parse(`[${v}]`) : v.split("."), v => v.filterType(Array).assertType<string[]>(), v => v.path)
+            parseAttribute("label-width", v => +v, v => v.notNaN(), v => v.fieldOptions!.labelWidth)
 
             options.type ??= Type.object({
                 _1: makeInfo("error", "Form type not found")
