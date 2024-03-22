@@ -16,7 +16,12 @@ Object.assign(window,
     type, struct, mutation, binding, form, customFields,
     {
         startApp, STATE, useWebsocketConnection, registerForm,
-        "_OUTPUT": customFields.makeOutput()
+        "_OUTPUT": customFields.makeOutput(),
+        "_REPORT": (event => {
+            const path = event.getPath()
+            const value = event.value
+            STATE.action("valueChanged", { path, value })
+        }) satisfies FieldOptions["onChange"]
     }
 )
 
