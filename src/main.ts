@@ -1,5 +1,6 @@
 import { createApp } from "vue"
 import { App, startApp } from "./app/App"
+import { FieldOptions } from "./formBuilder/FieldDrawer"
 import * as binding from "./formML/Binding"
 import * as form from "./formML/Form"
 import * as customFields from "./quickFront/customFields"
@@ -8,8 +9,7 @@ import { STATE, useWebsocketConnection } from "./quickFront/state"
 import * as mutation from "./struct/Mutation"
 import * as struct from "./struct/Struct"
 import * as type from "./struct/Type"
-import { LIGHT_THEME } from "./vue3gui/theme/light"
-import "./vue3gui/theme/light.scss"
+import "./vue3gui/style.scss"
 import { vue3gui } from "./vue3gui/vue3gui"
 
 Object.assign(window,
@@ -22,9 +22,7 @@ Object.assign(window,
 
 const app = createApp(App)
 
-app.use(vue3gui, {
-    theme: LIGHT_THEME
-})
+app.use(vue3gui, {})
 
 const root = document.createElement("div")
 app.mount(root)
