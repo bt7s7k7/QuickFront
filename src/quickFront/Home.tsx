@@ -88,6 +88,7 @@ export const Home = (defineComponent({
             parseAttribute("form-type", v => (window as any)[v], v => v.filter(v => Type.isType(v)), v => v.type)
             parseAttribute("path", v => v.startsWith("'") ? JSON.parse(`[${v}]`) : v.split("."), v => v.filterType(Array).assertType<string[]>(), v => v.path)
             parseAttribute("label-width", v => +v, v => v.notNaN(), v => v.fieldOptions!.labelWidth)
+            parseAttribute("onchange", v => (window as any)[v], v => v.filterType(Function), v => v.fieldOptions!.onChange)
 
             options.type ??= Type.object({
                 _1: makeInfo("error", "Form type not found")
