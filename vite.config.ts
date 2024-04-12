@@ -1,6 +1,7 @@
 import vue from "@vitejs/plugin-vue"
 import vueJsx from "@vitejs/plugin-vue-jsx"
 import * as dotenv from "dotenv"
+import { rename } from "fs/promises"
 import { join } from "path"
 import { defineConfig } from "vite"
 
@@ -24,6 +25,16 @@ export default defineConfig(() => {
                     ws: true,
                 }
             }
+        },
+        build: {
+            rollupOptions: {
+                input: "src/main.ts",
+                output: {
+                    entryFileNames: `assets/quick-front.js`,
+                    chunkFileNames: `assets/[name].js`,
+                    assetFileNames: `assets/[name].[ext]`
+                },
+            },
         }
     }
 })

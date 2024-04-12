@@ -1,23 +1,38 @@
-import { mdiChevronDown, mdiChevronLeft, mdiChevronRight, mdiChevronUp, mdiDelete, mdiMinus, mdiPlus } from "@mdi/js"
-import { createApp } from "vue"
+import { mdiAccount, mdiChevronDown, mdiChevronLeft, mdiChevronRight, mdiChevronUp, mdiDelete, mdiHome, mdiMinus, mdiPlus } from "@mdi/js"
+import { computed, createApp, defineComponent, markRaw, reactive, ref, shallowRef, toRaw, toRef, toRefs, unref, watch, watchEffect } from "vue"
 import { App, startApp } from "./app/App"
 import { FieldOptions } from "./formBuilder/FieldDrawer"
-import * as binding from "./formML/Binding"
-import * as form from "./formML/Form"
 import * as customFields from "./quickFront/customFields"
 import { openModal, registerForm } from "./quickFront/registration"
 import { STATE } from "./quickFront/state"
 import { useWebsocketConnection } from "./quickFront/websocketConnection"
-import * as mutation from "./struct/Mutation"
-import * as struct from "./struct/Struct"
-import * as type from "./struct/Type"
+import { Button, ButtonGroup } from "./vue3gui/Button"
+import { Circle } from "./vue3gui/Circle"
+import { useDynamicsEmitter } from "./vue3gui/DynamicsEmitter"
+import { Icon } from "./vue3gui/Icon"
+import { LoadingIndicator } from "./vue3gui/LoadingIndicator"
+import { MenuItem } from "./vue3gui/MenuItem"
+import { Overlay } from "./vue3gui/Overlay"
+import { Slider } from "./vue3gui/Slider"
+import { TextField } from "./vue3gui/TextField"
 import "./vue3gui/style.scss"
+import { useGrab } from "./vue3gui/useGrab"
+import * as vueUtil from "./vue3gui/util"
 import { vue3gui } from "./vue3gui/vue3gui"
+import * as tabs from "./vue3gui/Tabs"
+import { UploadOverlay } from "./vue3gui/UploadOverlay"
 
-const util = Object.fromEntries(Object.values(import.meta.glob("./comTypes/*", { eager: true })).flatMap(v => Object.entries(v as object)))
+function flattenObject(object: any) {
+    return Object.fromEntries(Object.values(object).flatMap(v => Object.entries(v as object)))
+}
+
+const util = flattenObject(import.meta.glob("./comTypes/*", { eager: true }))
+const struct = flattenObject(import.meta.glob("./struct/*", { eager: true }))
+const formML = flattenObject(import.meta.glob("./formML/*", { eager: true }))
+const formBuilder = flattenObject(import.meta.glob("./formBuilder/*", { eager: true }))
 
 Object.assign(window,
-    type, struct, mutation, binding, form, customFields, util,
+    struct, customFields, util, formML, formBuilder, vueUtil, tabs,
     {
         startApp, STATE, useWebsocketConnection, registerForm, openModal,
         "_OUTPUT": customFields.makeOutput(),
@@ -26,7 +41,9 @@ Object.assign(window,
             const value = event.value
             STATE.action("valueChanged", { path, value })
         }) satisfies FieldOptions["onChange"],
-        mdiMinus, mdiPlus, mdiDelete, mdiChevronUp, mdiChevronDown, mdiChevronRight, mdiChevronLeft
+        mdiMinus, mdiPlus, mdiDelete, mdiChevronUp, mdiChevronDown, mdiChevronRight, mdiChevronLeft, mdiHome, mdiAccount,
+        createApp, defineComponent, watchEffect, toRefs, toRef, unref, computed, watch, markRaw, toRaw, shallowRef, ref, reactive,
+        UploadOverlay, Circle, useGrab, Slider, LoadingIndicator, Overlay, MenuItem, useDynamicsEmitter, ButtonGroup, Icon, TextField, Button,
     }
 )
 

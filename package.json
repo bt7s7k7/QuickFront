@@ -1,7 +1,18 @@
 {
     "name": "quick-front",
-    "version": "0.0.0",
-    "private": true,
+    "version": "1.0.0",
+    "license": "MIT",
+    "author": "bt7s7k7",
+    "exports": {
+        ".": {
+            "import": "./dist/assets/quick-front.js"
+        }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bt7s7k7/QuickFront.git"
+    },
+    "homepage": "https://github.com/bt7s7k7/QuickFront/",
     "devDependencies": {
         "@types/express": "^4.17.21",
         "@types/ws": "^8.5.10",
@@ -16,7 +27,10 @@
         "sass": "^1.63.6",
         "typescript": "^5.1.6",
         "vite": "^4.4.3",
-        "ws": "^8.16.0"
+        "ws": "^8.16.0",
+        "@mdi/js": "^7.2.96",
+        "vue": "^3.3.4",
+        "vue-router": "^4.2.4"
     },
     "scripts": {
         "dev": "concurrently --raw --kill-others \"vite\" \"tsc --noEmit --watch --incremental --preserveWatchOutput\"",
@@ -24,10 +38,5 @@
         "serve": "vite preview",
         "lint": "yarn eslint ./",
         "get-ucpem": "curl -L https://github.com/bt7s7k7/UCPeM/releases/latest/download/ucpem.js -o node_modules/.bin/ucpem"
-    },
-    "dependencies": {
-        "@mdi/js": "^7.2.96",
-        "vue": "^3.3.4",
-        "vue-router": "^4.2.4"
     }
 }
