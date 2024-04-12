@@ -91,8 +91,11 @@ export function findForms() {
         const expr = parser.readUntil(() => false)
         const value = Optional.pcall(() => new Function("return (" + expr + ")")()).filterType(Array).assertType<any[]>().unwrapOrError()
         if (value instanceof Error) {
+            template.remove()
             // eslint-disable-next-line no-console
             console.error(value)
+            // eslint-disable-next-line no-console
+            console.error("Error during instantiation of template, therefore it was removed from the document")
             continue
         }
 
