@@ -6,7 +6,7 @@ export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE"
 export interface RestActionOptions {
     route: string
     method: HttpMethod
-    store: string[]
+    store?: string[]
 }
 
 export interface RestConnectionOptions {
@@ -15,6 +15,7 @@ export interface RestConnectionOptions {
     auth?: string[]
     initialActions?: string[]
     errorHandler?(error: RestRequestError): void
+    onResponse?(response: string): void
 }
 
 export class RestRequestError extends Error {
@@ -31,10 +32,12 @@ export class RestAction {
     public readonly method
     public readonly store
 
-    public async execute(data: any, auth: string | null) {
+    public async execute(data: any, auth: string | null, onResponse: RestConnectionOptions["onResponse"]) {
         const requestInit: RequestInit = {
             method: this.method,
         }
+
+        let route = this.route.href
 
         if (auth) {
             setValueByPath(requestInit, ["headers", "authorization"], `Bearer ${auth}`)
@@ -43,17 +46,20 @@ export class RestAction {
         if (data) {
             setValueByPath(requestInit, ["headers", "content-type"], `application/json`)
             requestInit.body = JSON.stringify(data)
+
+            route = route.replace(/:([a-z]\w*)/g, (_, select) => data[select])
         }
 
-        const response = await fetch(this.route, requestInit)
+        const response = await fetch(route, requestInit)
         if ((response.status / 100 | 0) != 2) {
             throw new RestRequestError(response.status, await response.text())
         }
 
         const responseText = await response.text()
+        onResponse?.(responseText)
         const result = JSON.parse(responseText)
 
-        setValueByPath(STATE.value, this.store, result)
+        if (this.store) setValueByPath(STATE.value, this.store, result)
     }
 
     constructor(base: URL, options: RestActionOptions) {
@@ -79,13 +85,13 @@ export function useRestConnection(options: RestConnectionOptions) {
         if (action == null) throw new Error("Tried to execute unknown action " + JSON.stringify(actionName))
         if (options.errorHandler) {
             try {
-                await action.execute(data, auth())
+                await action.execute(data, auth(), options.onResponse)
             } catch (err) {
                 if (!(err instanceof RestRequestError)) throw err
                 options.errorHandler(err)
             }
         } else {
-            await action.execute(data, auth())
+            await action.execute(data, auth(), options.onResponse)
         }
     }
 
