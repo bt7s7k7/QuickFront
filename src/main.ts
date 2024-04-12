@@ -6,15 +6,18 @@ import * as binding from "./formML/Binding"
 import * as form from "./formML/Form"
 import * as customFields from "./quickFront/customFields"
 import { openModal, registerForm } from "./quickFront/registration"
-import { STATE, useWebsocketConnection } from "./quickFront/state"
+import { STATE } from "./quickFront/state"
+import { useWebsocketConnection } from "./quickFront/websocketConnection"
 import * as mutation from "./struct/Mutation"
 import * as struct from "./struct/Struct"
 import * as type from "./struct/Type"
 import "./vue3gui/style.scss"
 import { vue3gui } from "./vue3gui/vue3gui"
 
+const util = Object.fromEntries(Object.values(import.meta.glob("./comTypes/*", { eager: true })).flatMap(v => Object.entries(v as object)))
+
 Object.assign(window,
-    type, struct, mutation, binding, form, customFields,
+    type, struct, mutation, binding, form, customFields, util,
     {
         startApp, STATE, useWebsocketConnection, registerForm, openModal,
         "_OUTPUT": customFields.makeOutput(),
