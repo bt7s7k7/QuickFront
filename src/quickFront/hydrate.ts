@@ -2,7 +2,7 @@ import { defineComponent, h, onMounted } from "vue"
 import { GenericParser } from "../comTypes/GenericParser"
 import { ImmutableList } from "../comTypes/ImmutableList"
 import { Optional } from "../comTypes/Optional"
-import { escapeRegex, isWhitespace, runString, setValueByPath, toString, unreachable } from "../comTypes/util"
+import { escapeRegex, getValueByPath, isWhitespace, runString, setValueByPath, toString, unreachable } from "../comTypes/util"
 import { Mutation } from "../struct/Mutation"
 import { Type } from "../struct/Type"
 import { ModalOptions } from "../vue3gui/DynamicsEmitter"
@@ -149,9 +149,9 @@ export function hydrate(targetNode: Element | Document) {
 
         source.addEventListener("click", () => {
             let data = null
+
             if (path != null) {
-                data = STATE.value.value
-                for (const key of path) data = data[key]
+                data = getValueByPath(STATE.value, path)
             }
 
             if (getter != null) {
