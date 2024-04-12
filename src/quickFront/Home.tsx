@@ -3,8 +3,9 @@ import { FormView } from "../formBuilder/FormView"
 import { useForm } from "../formBuilder/useForm"
 import { Modal } from "../vue3gui/Modal"
 import { MountNode } from "../vue3gui/MountNode"
+import { Tab, TabbedContainer, Tabs, useTabs } from "../vue3gui/Tabs"
 import { findForms, hydrate } from "./hydrate"
-import { FORM_MOUNT_LIST, InstantiatedModal, MODAL_FORM_LIST, MountRegistration } from "./registration"
+import { FORM_MOUNT_LIST, InstantiatedModal, MODAL_FORM_LIST, MountRegistration, TABS_MOUNT_LIST, TabsRegistration } from "./registration"
 import { STATE } from "./state"
 
 const _MountedForm = defineComponent({
@@ -44,6 +45,38 @@ const _MountedModal = defineComponent({
     },
 })
 
+const _MountedTabs = defineComponent({
+    name: "_MountedTabs",
+    props: {
+        registration: { type: Object as PropType<TabsRegistration>, required: true }
+    },
+    setup(props, ctx) {
+        const state = useTabs()
+
+        if (props.registration.name) {
+            // @ts-ignore
+            window[`set${props.registration.name}Tab`] = function (tab: string) {
+                state.selected = tab
+            }
+        }
+
+        return () => (
+            <div class="absolute-fill flex column">
+                <div class="border-bottom px-2 pt-1">
+                    <Tabs tabs={state} border />
+                </div>
+                <TabbedContainer externalTabs={state}>
+                    {props.registration.children.map((v, i) => (
+                        <Tab name={v.name}>
+                            <MountNode node={v.content} />
+                        </Tab>
+                    ))}
+                </TabbedContainer>
+            </div>
+        )
+    },
+})
+
 export const Home = (defineComponent({
     name: "Home",
     setup(props, ctx) {
@@ -64,6 +97,11 @@ export const Home = (defineComponent({
             )),
             MODAL_FORM_LIST.map(mount => (
                 <_MountedModal registration={mount} />
+            )),
+            TABS_MOUNT_LIST.map(mount => (
+                <Teleport to={mount.element}>
+                    <_MountedTabs registration={mount} />
+                </Teleport>
             ))
         ]
     }

@@ -2,13 +2,13 @@ import { defineComponent, h, onMounted } from "vue"
 import { GenericParser } from "../comTypes/GenericParser"
 import { ImmutableList } from "../comTypes/ImmutableList"
 import { Optional } from "../comTypes/Optional"
-import { escapeRegex, isWhitespace, runString, toString, unreachable } from "../comTypes/util"
+import { escapeRegex, isWhitespace, runString, setValueByPath, toString, unreachable } from "../comTypes/util"
 import { Mutation } from "../struct/Mutation"
 import { Type } from "../struct/Type"
 import { ModalOptions } from "../vue3gui/DynamicsEmitter"
 import { MountNode } from "../vue3gui/MountNode"
 import { makeInfo } from "./customFields"
-import { MountRegistration, registerForm, registerModal } from "./registration"
+import { MountRegistration, TABS_MOUNT_LIST, TabsRegistration, registerForm, registerModal } from "./registration"
 import { STATE } from "./state"
 
 function _makeParser<S>(target: HTMLElement, receiver: S) {
@@ -125,6 +125,10 @@ export function findForms() {
         parseAttribute("onchange", _FIND_CONSTANT, v => v.filterType(Function), v => v.fieldOptions!.onChange)
         parseAttribute("prefix", _FROM_TEMPLATE, v => v, v => v.fieldOptions!.prefix)
         parseAttribute("suffix", _FROM_TEMPLATE, v => v, v => v.fieldOptions!.suffix)
+        const readonly = parseAttribute("readonly", () => true, v => v)
+        if (readonly) {
+            setValueByPath(options, ["fieldsOptions", "disable"], () => true)
+        }
 
         options.type ??= Type.object({
             _1: makeInfo("error", "Form type not found")
@@ -165,6 +169,26 @@ export function hydrate(targetNode: Element | Document) {
         const iconElement = document.createElement("svg")
         iconElement.innerHTML = `<svg class="as-icon" fill="currentColor" viewBox="0 0 24 24"> <g> <path d="${icon}" /> <rect width="24" height="24" fill="transparent" /> </g> </svg>`
         source.prepend(iconElement)
+    }
+
+    for (const source_1 of targetNode.querySelectorAll("[data-tabs]")) {
+        const source = source_1 as HTMLElement
+        const parseAttribute = _makeParser(source, {})
+        const name = parseAttribute("data-tabs", v => v, v => v).unwrap()
+
+        const tab: TabsRegistration = {
+            element: source, name,
+            children: []
+        }
+
+        const children = [...source.children]
+        for (const child of children) {
+            child.remove()
+            const name = child.getAttribute("data-tab-name") ?? child.tagName
+            tab.children.push({ name, content: child as HTMLElement })
+        }
+
+        TABS_MOUNT_LIST.push(tab)
     }
 
     for (const source_1 of targetNode.querySelectorAll("[data-modal]")) {

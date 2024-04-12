@@ -1,4 +1,4 @@
-import { Ref, markRaw, ref } from "vue"
+import { Ref, markRaw, ref, shallowReactive } from "vue"
 import { FieldOptions } from "../formBuilder/FieldDrawer"
 import { Form } from "../formML/Form"
 import { Type } from "../struct/Type"
@@ -10,6 +10,7 @@ export interface MountRegistration {
     path?: string[]
     type?: Type<any>
     fieldOptions?: Partial<FieldOptions>
+    readonly?: boolean
 }
 
 export const FORM_MOUNT_LIST: MountRegistration[] = []
@@ -41,3 +42,11 @@ export function registerModal(registration: ModalRegistration) {
 export function openModal(name: string) {
     _MODAL_LOOKUP.get(name)!.open.value = true
 }
+
+export interface TabsRegistration {
+    name: string
+    element: HTMLElement
+    children: { name: string, content: HTMLElement }[]
+}
+
+export const TABS_MOUNT_LIST: TabsRegistration[] = shallowReactive([])
