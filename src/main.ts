@@ -21,6 +21,7 @@ import * as vueUtil from "./vue3gui/util"
 import { vue3gui } from "./vue3gui/vue3gui"
 import * as tabs from "./vue3gui/Tabs"
 import { UploadOverlay } from "./vue3gui/UploadOverlay"
+import { useRestConnection } from "./quickFront/restConnection"
 
 function flattenObject(object: any) {
     return Object.fromEntries(Object.values(object).flatMap(v => Object.entries(v as object)))
@@ -34,7 +35,7 @@ const formBuilder = flattenObject(import.meta.glob("./formBuilder/*", { eager: t
 Object.assign(window,
     struct, customFields, util, formML, formBuilder, vueUtil, tabs,
     {
-        startApp, STATE, useWebsocketConnection, registerForm, openModal,
+        startApp, STATE, useWebsocketConnection, useRestConnection, registerForm, openModal,
         "_OUTPUT": customFields.makeOutput(),
         "_REPORT": (event => {
             const path = event.getPath()
