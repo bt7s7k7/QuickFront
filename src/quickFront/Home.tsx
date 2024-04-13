@@ -65,7 +65,7 @@ const _MountedTabs = defineComponent({
                 <div class="border-bottom px-2 pt-1">
                     <Tabs tabs={state} border />
                 </div>
-                <TabbedContainer externalTabs={state}>
+                <TabbedContainer externalTabs={state} class="flex-fill">
                     {props.registration.children.map((v, i) => (
                         <Tab name={v.name}>
                             <MountNode node={v.content} />
