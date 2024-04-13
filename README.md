@@ -1,8 +1,9 @@
 # QuickFront
 
-Package to quickly hack together a frontend for your server. It is only meant to be used as a dev placeholder or for small projects where the performance and user friendliness of your frontend are not important.
+Package to quickly hack together a frontend for your server. Extracted and slightly polished from personal use. There are some inconsistent and inefficient design decisions and also no documentation. See examples folder, if you want to make something with this.
 
-This package includes 
+It is only meant to be used as a dev placeholder or for small projects where the performance and user friendliness of your frontend are not important. No feedback or corrections are accepted. Good luck.
+
 
 ## Usage 
 

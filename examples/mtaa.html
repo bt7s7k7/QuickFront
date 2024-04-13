@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/quick-front/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DigiSenior API</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        .as-looker {
+            flex-basis: 700px;
+        }
+
+        .as-root-panel {
+            flex-direction: row;
+            max-height: 100vh;
+        }
+
+        .as-panel {
+            overflow-y: auto;
+            text-overflow: ellipsis;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .as-panel-splitter {
+            flex-direction: row;
+        }
+
+        .as-output-field {
+            text-overflow: ellipsis;
+        }
+
+        @media (max-width: 1600px) {
+            .as-panel-splitter {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width:1300px) {
+            .as-panel-splitter {
+                flex-direction: row;
+            }
+
+            .as-root-panel {
+                flex-direction: column;
+            }
+
+            .as-looker {
+                flex-basis: 300px;
+                border-top: var(--border-color) 1px solid;
+            }
+        }
+
+        @media (max-width: 960px) {
+            .as-panel-splitter {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <noscript>
+        <strong>We're sorry but this page doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <script type="module" src="/quick-front/quick-front.js"></script>
+    <script type="module" src="/src/main.ts"></script>
+
+    <div class="flex-fill flex as-root-panel">
+        <div data-tabs class="flex-fill border-right">
+            <div data-tab-name="Login" class="p-2 flex column gap-2 as-panel">
+                <div class="gap-2 flex as-panel-splitter">
+                    <div class="flex-fill flex column gap-2 border rounded p-2">
+                        <b>Login</b>
+                        <div form-type="Login_t" path="login"></div>
+                        <div>
+                            <button data-action="login" data-path="login" class="as-button as-clickable bg-primary">Login</button>
+                            <button data-action="login" data-path="seedAccounts.joy" class="as-button as-clickable bg-secondary">Use Joy</button>
+                            <button data-action="login" data-path="seedAccounts.kale" class="as-button as-clickable bg-secondary">Use Kale</button>
+                        </div>
+
+                        <div>
+                            <button onclick="STATE.value.auth.token = STATE.value.storedToken" data-action="me" class="as-button as-clickable bg-primary">Load saved token</button>
+                            <button data-action="me" class="as-button as-clickable bg-secondary">Refresh user</button>
+                            <button onclick="STATE.value.auth = Auth_t.default()" class="as-button as-clickable bg-secondary">Log out</button>
+                        </div>
+                    </div>
+                    <div class="flex-fill flex column gap-2  border rounded p-2">
+                        <b>Register</b>
+                        <div form-type="Register_t" path="login"></div>
+                        <div>
+                            <button class="as-button as-clickable bg-primary" data-action="register" data-path="login">Register</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div form-type="Auth_t" path="auth" class="p-2 border rounded"></div>
+                <div form-type="_OUTPUT" path="storedToken" class="p-2 border rounded"></div>
+            </div>
+            <div data-tab-name="Levels" class="p-4 flex column gap-2 as-panel">
+                <div>
+                    <button data-action="getLevels" class="as-button as-clickable bg-primary">List level types</button>
+                </div>
+                <div form-type="Levels_t" path="levels"></div>
+            </div>
+            <div data-tab-name="Friends + Activities" class="p-2 flex as-panel-splitter gap-2 as-panel">
+                <div class="flex-fill flex column gap-2">
+                    <div class="border rounded p-2">
+                        <button data-action="getFriends" class="as-button as-clickable bg-primary">Get Friends</button>
+                        <button data-action="getHomeActivities" class="as-button as-clickable bg-primary">Get Home Activities</button>
+                        <button onclick="randomActivity()" class="as-button as-clickable bg-secondary">Make Random Activity</button>
+                    </div>
+                    <div class="border rounded p-2 h-max-fill">
+                        <b>Friends</b>
+                        <div form-type="Users_t" path="friends.friends" suffix="friends-buttons"></div>
+
+                        <template name="friends-buttons" when="props.path.toArray().length == 3" class="w-0 nowrap">
+                            <div class="flex row">
+                                <button class="as-clickable as-button flat" data-icon="mdiDelete" data-action="removeFriend" data-data="{id: STATE.value.friends.friends[$index].id}"></button>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="border rounded p-2 h-max-fill">
+                        <b>Invitations</b>
+                        <div form-type="Users_t" path="friends.invites" suffix="invites-buttons"></div>
+
+                        <template name="invites-buttons" when="props.path.toArray().length == 3" class="w-0 nowrap">
+                            <div class="flex row">
+                                <button class="as-clickable as-button flat" data-icon="mdiCheck" data-action="acceptInvite" data-data="{id: STATE.value.friends.invites[$index].id}"></button>
+                                <button class="as-clickable as-button flat" data-icon="mdiClose" data-action="denyInvite" data-data="{id: STATE.value.friends.invites[$index].id}"></button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="flex-fill flex column gap-2">
+                    <div class="border rounded p-2 h-max-fill">
+                        <b>Activities</b>
+                        <div form-type="Activities_t" path="activities" suffix="activities-buttons"></div>
+                    </div>
+
+                    <template name="activities-buttons" when="props.path.toArray().length == 2" class="w-0 nowrap">
+                        <div class="flex row">
+                            <button class="as-clickable as-button flat" data-icon="mdiDelete" data-action="activityDelete" data-data="{id: STATE.value.activities[$index].id}"></button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div data-tab-name="Add Friend" class="p-2 flex column gap-2 as-panel">
+                <div form-type="FriendsSearchQuery_t" path="friendsSearchQuery"></div>
+                <div form-type="Users_t" path="friendsSearch.users" suffix="friend-search-buttons"></div>
+
+                <template name="friend-search-buttons" when="props.path.toArray().length == 3" class="w-0 nowrap">
+                    <div class="flex row">
+                        <button class="as-clickable as-button bg-primary" data-action="addFriend" data-data="{id: STATE.value.friendsSearch.users[$index].id}">Add</button>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <div class="flex column as-looker">
+            <div class="border-bottom flex row gap-2 px-2">
+                <div data-icon="mdiAccount"></div>
+                <div>Logged in as:</div>
+                <div form-type="_OUTPUT" label-width="0" path="auth.user.fullName"></div>
+            </div>
+            <div class="flex-fill">
+                <pre class="absolute-fill m-0 pre-wrap p-2 overflow-auto" id="looker"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function init() {
+            const looker = document.getElementById("looker")
+
+            useRestConnection({
+                base: location.href.includes("/examples/") ? "http://localhost:3333" : undefined,
+                actions: {
+                    getLevels: { method: "GET", route: "/levels", store: ["levels"] },
+                    login: { method: "POST", route: "/auth/login", store: ["auth"] },
+                    register: { method: "POST", route: "/auth/register", store: ["auth"] },
+                    me: { method: "GET", route: "/user", store: ["auth", "user"] },
+
+                    getFriends: { method: "GET", route: "/friend", store: ["friends"] },
+                    searchFriends: { method: "GET", route: "/friend/search?query=:search", store: ["friendsSearch"] },
+                    addFriend: { method: "POST", route: "/friend/invite" },
+                    acceptInvite: { method: "POST", route: "/friend/invite/:id/accept" },
+                    denyInvite: { method: "POST", route: "/friend/invite/:id/deny" },
+                    removeFriend: { method: "POST", route: "/friend/remove/:id" },
+
+                    getHomeActivities: { method: "GET", route: "/activity", store: ["activities"] },
+                    makeActivity: { method: "POST", route: "/activity" },
+                    activityDelete: { method: "DELETE", route: "/activity/:id" }
+                },
+                auth: ["auth", "token"],
+                errorHandler(error) {
+                    const body = Optional.pcall(() => JSON.stringify(JSON.parse(error.body), null, 4)).else(() => error.body).unwrap()
+                    looker.innerHTML = `<span class="text-danger">Status code: ${error.status}</span>\n\n${escapeHTML(body)}`
+                },
+                onResponse(response) {
+                    const body = Optional.pcall(() => JSON.stringify(JSON.parse(response), null, 4)).else(() => response).unwrap()
+                    looker.innerHTML = `<span class="text-success">Request successful</span>\n\n${escapeHTML(body)}`
+                }
+            })
+
+            const Levels_t = Type.object({
+                id: makeOutput(),
+                pointsRequired: makeOutput(),
+                name: makeOutput()
+            }).as(Type.array).as(Type.annotate, new TableAttribute())
+
+            const Login_t = Type.object({
+                email: Type.string,
+                password: Type.string
+            })
+
+            const Register_t = Type.object({
+                fullName: Type.string,
+                email: Type.string,
+                password: Type.string,
+            })
+
+            const User_t = Type.object({
+                id: makeOutput(),
+                fullName: makeOutput(),
+                email: makeOutput(),
+                points: makeOutput(),
+                levelId: makeOutput(),
+                icon: makeOutput()
+            })
+
+            const Auth_t = Type.object({
+                user: User_t,
+                token: makeOutput()
+            })
+
+            const Activity_t = Type.object({
+                id: makeOutput(),
+                user: makeOutput(v => v.fullName),
+                activityName: makeOutput(),
+                points: makeOutput(),
+                steps: makeOutput(),
+                distance: makeOutput(),
+                duration: makeOutput()
+            })
+
+            const Activities_t = Activity_t.as(Type.array).as(Type.annotate, new TableAttribute())
+
+            const Users_t = User_t.as(Type.array).as(Type.annotate, new TableAttribute())
+
+            STATE.value = reactive({
+                seedAccounts: {
+                    joy: { email: "joy@example.com", password: "12345" },
+                    kale: { email: "kale@example.com", password: "12345" },
+                },
+                login: {
+                    fullName: "",
+                    email: "",
+                    password: "",
+                },
+                auth: Auth_t.default(),
+                friends: {},
+                friendsSearchQuery: { search: "" },
+                friendsSearch: {}
+            })
+
+            watch(() => STATE.value.auth.token, token => {
+                localStorage.setItem("digi-senior-dev:token", token)
+                STATE.value.storedToken = token
+            })
+
+            if (localStorage.getItem("digi-senior-dev:token")) {
+                STATE.value.storedToken = localStorage.getItem("digi-senior-dev:token")
+            }
+
+            var random = new Random()
+            function randomActivity() {
+                const activity = {
+                    ...Activity_t.default(),
+                    activityName: "New Activity",
+                    steps: random.nextRange(1000, 2000) | 0,
+                    distance: random.nextRange(10, 1000) | 0,
+                    duration: random.nextRange(0, 5000) | 0,
+                    path: "",
+                }
+                activity.points = activity.steps
+
+                STATE.action("makeActivity", activity)
+            }
+
+            const FriendsSearchQuery_t = Type.object({ search: Type.string })
+            const friendsSearchQuery = useDebounce(computed(() => STATE.value.friendsSearchQuery.search), { delay: 100 })
+            watch(friendsSearchQuery, (friendsSearchQuery) => {
+                STATE.action("searchFriends", STATE.value.friendsSearchQuery)
+            })
+
+            startApp({ Levels_t, Login_t, Register_t, User_t, Users_t, Auth_t, Activity_t, Activities_t, randomActivity, FriendsSearchQuery_t })
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sw-switch</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <noscript>
+        <strong>We're sorry but this page doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <script type="module" src="/index.js"></script>
+    <script type="module" src="/src/main.ts"></script>
+
+    <div class="flex-fill flex row p-2 gap-2">
+        <div class="flex column p-2 border rounded w-300 gap-2">
+            <button class="as-button bg-danger" data-action="deleteTable">Delete Table</button>
+            <div class="flex-fill">
+                <div class="absolute-fill overflow-auto" form-type="SwitchingTable_t" path="switchingTable" onchange="_REPORT"></div>
+            </div>
+            <div class="border-bottom"></div>
+            <table class="as-table w-fill">
+                <thead>
+                    <tr>
+                        <td rowspan="2">
+                            <button data-icon="mdiDelete" class="as-button as-clickable flat absolute-fill" data-action="statsClear"></button>
+                        </td>
+                        <td colspan="2"> <b form-type="_OUTPUT" label-width="0" path="interfaceA.name"></b></td>
+                        <td colspan="2"> <b form-type="_OUTPUT" label-width="0" path="interfaceB.name"></b></td>
+                    </tr>
+                    <tr>
+                        <td class="px-1">In</td>
+                        <td class="px-1">Out</td>
+                        <td class="px-1">In</td>
+                        <td class="px-1">Out</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="flex column gap-1" id="intTypes">
+                                <template for="$protocol in protocols">
+                                    <div>$protocol</div>
+                                </template>
+                            </div>
+                        </td>
+                        <template for="$interface in ['interfaceA', 'interfaceB']">
+                            <template for="$dir in ['in', 'out']">
+                                <td>
+                                    <div form-type="IOStats_t" label-width="0" path="$interface.$dir"></div>
+                                </td>
+                            </template>
+                        </template>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="gap-2 flex-fill flex column">
+            <div class="flex column gap-2 flex-fill border rounded p-2">
+                <h2 class="m-0">Access Control List</h2>
+                <div form-type="ACL_t" path="acl" onchange="updateACL" suffix="test-tem"></div>
+                <div class="flex row">
+                    <button class="as-button as-clickable bg-success" onclick="openACL()">Add Rule</button>
+                </div>
+            </div>
+            <div class="flex column gap-2 border p-2 rounded">
+                <b>Syslog</b>
+                <div form-type="Syslog_t" path="syslog" onchange="updateSyslogIP"></div>
+            </div>
+        </div>
+    </div>
+
+    <div data-modal="test" ok-button="Create" cancel-button backdrop-cancels onclose="addACL" class="w-500 flex column gap-2">
+        <b>Create ACL rule</b>
+        <div form-type="ACLRule_t" path="aclDialog"></div>
+    </div>
+
+    <template name="test-tem" when="props.path.toArray().length == 3" class="w-0 nowrap">
+        <div class="flex row">
+            <button class="as-clickable as-button flat" data-icon="mdiChevronUp" data-action="aclUp" data-data="+`$path`.split(`.`).at(-1)"></button>
+            <button class="as-clickable as-button flat" data-icon="mdiChevronDown" data-action="aclDown" data-data="+`$path`.split(`.`).at(-1)"></button>
+            <button class="as-clickable as-button flat" data-icon="mdiDelete" data-action="aclDelete" data-data="+`$path`.split(`.`).at(-1)"></button>
+        </div>
+    </template>
+
+    <script>
+        function init() {
+            const IOStats_t = Type.object({
+                ethernetII: makeOutput().as(Type.annotate, new LabelAttribute("EthII")),
+                arp: makeOutput().as(Type.annotate, new LabelAttribute("ARP")),
+                ip: makeOutput().as(Type.annotate, new LabelAttribute("IP")),
+                tcp: makeOutput().as(Type.annotate, new LabelAttribute("TCP")),
+                udp: makeOutput().as(Type.annotate, new LabelAttribute("UDP")),
+                icmp: makeOutput().as(Type.annotate, new LabelAttribute("ICMP")),
+                http: makeOutput().as(Type.annotate, new LabelAttribute("HTTP"))
+            })
+
+            const InterfaceInfo_t = Type.object({
+                name: makeOutput(),
+                in: IOStats_t,
+                out: IOStats_t
+            })
+
+            const SwitchingEntry_t = Type.object({
+                port: makeOutput(v => v + 1),
+                address: makeOutput(),
+                duration: makeOutput(v => v.toFixed(0)),
+            })
+
+            const SwitchingTable_t = Type.object({
+                storageDuration: Type.number.as(Type.annotate,
+                    new CustomFieldAttribute(new NumberField({ integer: true, min: 1, max: 500, explicit: true })),
+                    new LabelAttribute("Duration")
+                ),
+                entries: SwitchingEntry_t.as(Type.array).as(Type.annotate, new TableAttribute(), new LabelAttribute("")),
+            })
+
+            const enumLabels = new EnumLabelsAttribute(["1", "2"])
+
+            const ACLRule_t = Type.object({
+                port: Type.enum(0, 1).as(Type.annotate, enumLabels).as(Type.nullable),
+                inOut: Type.enum("In", "Out").as(Type.nullable),
+                sourceMAC: Type.string.as(Type.nullable).as(Type.annotate, new LabelAttribute("Source MAC")),
+                destMAC: Type.string.as(Type.nullable).as(Type.annotate, new LabelAttribute("Dest Mac")),
+                sourceIP: Type.string.as(Type.nullable).as(Type.annotate, new LabelAttribute("Source IP")),
+                destIP: Type.string.as(Type.nullable).as(Type.annotate, new LabelAttribute("Dest IP")),
+                sourcePort: Type.number.as(Type.nullable),
+                destPort: Type.number.as(Type.nullable),
+                icmpType: Type.enum("EchoReply", "EchoRequest").as(Type.nullable),
+                action: Type.enum("Allow", "Deny"),
+            })
+
+            const ACLEntry_t = Type.object({
+                ...Object.fromEntries(Object.entries(ACLRule_t.props).map(v => [v[0], v[1].as(Type.annotate, new ExplicitFieldAttribute())])),
+                hitCount: makeOutput().as(Type.annotate, new LabelAttribute("#"))
+            })
+
+            const ACL_t = Type.object({
+                entries: ACLEntry_t.as(Type.array).as(Type.annotate, new TableAttribute(), new LabelAttribute(""))
+            })
+
+            const protocols = IOStats_t.propList.map(v => Type.getMetadata(v[1]).get(LabelAttribute).label)
+
+            let aclDialog = ACLEntry_t.default()
+
+            STATE.postSync = value => {
+                Object.defineProperty(value, "aclDialog", { get() { return aclDialog } })
+                enumLabels.labels = [value.interfaceA.name, value.interfaceB.name]
+            }
+
+            function openACL() {
+                aclDialog = ACLEntry_t.default()
+                openModal(`test`)
+            }
+
+            function addACL(success) {
+                if (!success) return
+                STATE.action("addACL", aclDialog)
+                aclDialog = ACLEntry_t.default()
+            }
+
+            function updateACL(event) {
+                const index = +event.getPath()[2]
+                const acl = STATE.value.value.acl.entries[index]
+
+                STATE.action("updateACL", { index, acl })
+            }
+
+            const Syslog_t = Type.object({
+                enabled: Type.boolean,
+                localIP: Type.string.as(Type.annotate, new CustomFieldAttribute(new StringField({ explicit: true, validator: "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" })), new LabelAttribute("Local IP")),
+                remoteIP: Type.string.as(Type.annotate, new CustomFieldAttribute(new StringField({ explicit: true, validator: "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" })), new LabelAttribute("Remote IP"))
+            })
+
+            function updateSyslogIP(event) {
+                STATE.action("updateSyslogIP", { key: event.getPath().at(-1), value: event.value })
+                console.log({ key: event.getPath().at(-1), value: event.value })
+            }
+
+            useWebsocketConnection("ws://localhost:8081").then(() => startApp({ IOStats_t, protocols, SwitchingTable_t, ACL_t, addACL, openACL, ACLEntry_t, ACLRule_t, updateACL, Syslog_t, updateSyslogIP }))
+        }
+    </script>
+</body>
+
+</html>
