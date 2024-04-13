@@ -45,7 +45,7 @@ export const OutputFieldDrawer = defineComponent({
         const value = useFieldDrawerValue(props)
 
         return () => (
-            <div>{props.field.mapper(value.value)}</div>
+            <div class="as-output-field">{props.field.mapper(value.value)}</div>
         )
     }
 })
