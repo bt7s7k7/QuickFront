@@ -44,10 +44,13 @@ export class RestAction {
         }
 
         if (data) {
-            setValueByPath(requestInit, ["headers", "content-type"], `application/json`)
-            requestInit.body = JSON.stringify(data)
+            if (this.method != "GET") {
+                setValueByPath(requestInit, ["headers", "content-type"], `application/json`)
+                requestInit.body = JSON.stringify(data)
+            }
 
-            route = route.replace(/:([a-z]\w*)/g, (_, select) => data[select])
+            route = route.replace(/:([a-z]\w*)/g, (_, select) => encodeURIComponent(data[select]))
+
         }
 
         const response = await fetch(route, requestInit)
