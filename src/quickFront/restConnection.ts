@@ -60,7 +60,7 @@ export class RestAction {
 
         const responseText = await response.text()
         onResponse?.(responseText)
-        const result = JSON.parse(responseText)
+        const result = responseText.trim() == "" ? null : JSON.parse(responseText)
 
         if (this.store) setValueByPath(STATE.value, this.store, result)
     }
