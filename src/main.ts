@@ -1,9 +1,10 @@
-import { mdiAccount, mdiChevronDown, mdiChevronLeft, mdiChevronRight, mdiChevronUp, mdiDelete, mdiHome, mdiMinus, mdiPlus } from "@mdi/js"
+import { mdiAccount, mdiCheck, mdiChevronDown, mdiChevronLeft, mdiChevronRight, mdiChevronUp, mdiClose, mdiDelete, mdiHome, mdiMinus, mdiPlus } from "@mdi/js"
 import { computed, createApp, defineComponent, markRaw, reactive, ref, shallowRef, toRaw, toRef, toRefs, unref, watch, watchEffect } from "vue"
 import { App, startApp } from "./app/App"
 import { FieldOptions } from "./formBuilder/FieldDrawer"
 import * as customFields from "./quickFront/customFields"
 import { openModal, registerForm } from "./quickFront/registration"
+import { useRestConnection } from "./quickFront/restConnection"
 import { STATE } from "./quickFront/state"
 import { useWebsocketConnection } from "./quickFront/websocketConnection"
 import { Button, ButtonGroup } from "./vue3gui/Button"
@@ -14,14 +15,13 @@ import { LoadingIndicator } from "./vue3gui/LoadingIndicator"
 import { MenuItem } from "./vue3gui/MenuItem"
 import { Overlay } from "./vue3gui/Overlay"
 import { Slider } from "./vue3gui/Slider"
+import * as tabs from "./vue3gui/Tabs"
 import { TextField } from "./vue3gui/TextField"
+import { UploadOverlay } from "./vue3gui/UploadOverlay"
 import "./vue3gui/style.scss"
 import { useGrab } from "./vue3gui/useGrab"
 import * as vueUtil from "./vue3gui/util"
 import { vue3gui } from "./vue3gui/vue3gui"
-import * as tabs from "./vue3gui/Tabs"
-import { UploadOverlay } from "./vue3gui/UploadOverlay"
-import { useRestConnection } from "./quickFront/restConnection"
 
 function flattenObject(object: any) {
     return Object.fromEntries(Object.values(object).flatMap(v => Object.entries(v as object)))
@@ -42,7 +42,7 @@ Object.assign(window,
             const value = event.value
             STATE.action("valueChanged", { path, value })
         }) satisfies FieldOptions["onChange"],
-        mdiMinus, mdiPlus, mdiDelete, mdiChevronUp, mdiChevronDown, mdiChevronRight, mdiChevronLeft, mdiHome, mdiAccount,
+        mdiMinus, mdiPlus, mdiDelete, mdiChevronUp, mdiChevronDown, mdiChevronRight, mdiChevronLeft, mdiHome, mdiAccount, mdiCheck, mdiClose,
         createApp, defineComponent, watchEffect, toRefs, toRef, unref, computed, watch, markRaw, toRaw, shallowRef, ref, reactive,
         UploadOverlay, Circle, useGrab, Slider, LoadingIndicator, Overlay, MenuItem, useDynamicsEmitter, ButtonGroup, Icon, TextField, Button,
     }
