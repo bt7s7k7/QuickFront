@@ -55,7 +55,7 @@ function _FROM_TEMPLATE(name: string) {
         props: { props: { type: null } },
         setup(props, ctx) {
             let placedContent = content
-            for (const [key, value] of Object.entries(props.props)) {
+            for (const [key, value] of Object.entries({ ...props.props, index: +props.props.path.getLast() })) {
                 placedContent = placedContent.replace(new RegExp("\\$" + escapeRegex(key) + "\\b", "g"), value instanceof ImmutableList ? value.join(".") : toString(value))
             }
 
