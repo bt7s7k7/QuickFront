@@ -7,6 +7,7 @@ export interface RestActionOptions {
     route: string
     method: HttpMethod
     store?: string[]
+    multipart?: boolean
 }
 
 export interface RestConnectionOptions {
@@ -31,6 +32,7 @@ export class RestAction {
     public readonly route
     public readonly method
     public readonly store
+    public readonly multipart
 
     public async execute(data: any, auth: string | null, onResponse: RestConnectionOptions["onResponse"]) {
         const requestInit: RequestInit = {
@@ -45,8 +47,27 @@ export class RestAction {
 
         if (data) {
             if (this.method != "GET") {
-                setValueByPath(requestInit, ["headers", "content-type"], `application/json`)
-                requestInit.body = JSON.stringify(data)
+                if (this.multipart) {
+                    const formData = new FormData()
+                    for (const [key, value] of Object.entries(data)) {
+                        if (typeof value == "string" || value instanceof Blob) {
+                            formData.set(key, value)
+                            continue
+                        }
+
+                        if (value instanceof Array) {
+                            for (const element of value) {
+                                if (typeof element != "string" && !(element instanceof Blob)) continue
+                                formData.append(key, element)
+                            }
+                            continue
+                        }
+                    }
+                    requestInit.body = formData
+                } else {
+                    setValueByPath(requestInit, ["headers", "content-type"], `application/json`)
+                    requestInit.body = JSON.stringify(data)
+                }
             }
 
             route = route.replace(/:([a-z]\w*)/g, (_, select) => encodeURIComponent(data[select]))
@@ -69,6 +90,7 @@ export class RestAction {
         this.route = new URL(options.route, base)
         this.method = options.method
         this.store = options.store
+        this.multipart = options.multipart ?? false
     }
 }
 

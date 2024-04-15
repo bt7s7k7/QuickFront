@@ -115,47 +115,45 @@
                 </div>
                 <div form-type="Levels_t" path="levels"></div>
             </div>
-            <div data-tab-name="Friends + Activities" class="p-2 flex as-panel-splitter gap-2 as-panel">
-                <div class="flex-fill flex column gap-2">
-                    <div class="border rounded p-2">
-                        <button data-action="getFriends" class="as-button as-clickable bg-primary">Get Friends</button>
-                        <button data-action="getHomeActivities" class="as-button as-clickable bg-primary">Get Home Activities</button>
-                        <button onclick="randomActivity()" class="as-button as-clickable bg-secondary">Make Random Activity</button>
-                    </div>
-                    <div class="border rounded p-2 h-max-fill">
-                        <b>Friends</b>
-                        <div form-type="Users_t" path="friends.friends" suffix="friends-buttons"></div>
-
-                        <template name="friends-buttons" when="props.path.toArray().length == 3" class="w-0 nowrap">
-                            <div class="flex row">
-                                <button class="as-clickable as-button flat" data-icon="mdiDelete" data-action="removeFriend" data-data="{id: STATE.value.friends.friends[$index].id}"></button>
-                            </div>
-                        </template>
-                    </div>
-                    <div class="border rounded p-2 h-max-fill">
-                        <b>Invitations</b>
-                        <div form-type="Users_t" path="friends.invites" suffix="invites-buttons"></div>
-
-                        <template name="invites-buttons" when="props.path.toArray().length == 3" class="w-0 nowrap">
-                            <div class="flex row">
-                                <button class="as-clickable as-button flat" data-icon="mdiCheck" data-action="acceptInvite" data-data="{id: STATE.value.friends.invites[$index].id}"></button>
-                                <button class="as-clickable as-button flat" data-icon="mdiClose" data-action="denyInvite" data-data="{id: STATE.value.friends.invites[$index].id}"></button>
-                            </div>
-                        </template>
-                    </div>
+            <div data-tab-name="Friends + Activities" class="p-2 flex flex column gap-2 as-panel">
+                <div class="border rounded p-2">
+                    <button data-action="getFriends" class="as-button as-clickable bg-primary">Get Friends</button>
+                    <button data-action="getHomeActivities" class="as-button as-clickable bg-primary">Get Home Activities</button>
+                    <button onclick="randomActivity()" class="as-button as-clickable bg-secondary">Make Random Activity</button>
                 </div>
-                <div class="flex-fill flex column gap-2">
-                    <div class="border rounded p-2 h-max-fill">
-                        <b>Activities</b>
-                        <div form-type="Activities_t" path="activities" suffix="activities-buttons"></div>
-                    </div>
+                <div class="border rounded p-2 h-max-fill">
+                    <b>Friends</b>
+                    <div form-type="Users_t" path="friends.friends" suffix="friends-buttons"></div>
 
-                    <template name="activities-buttons" when="props.path.toArray().length == 2" class="w-0 nowrap">
+                    <template name="friends-buttons" when="props.path.toArray().length == 3" class="w-0 nowrap">
                         <div class="flex row">
-                            <button class="as-clickable as-button flat" data-icon="mdiDelete" data-action="activityDelete" data-data="{id: STATE.value.activities[$index].id}"></button>
+                            <button class="as-clickable as-button flat" data-icon="mdiDelete" data-action="removeFriend" data-data="{id: STATE.value.friends.friends[$index].id}"></button>
                         </div>
                     </template>
                 </div>
+                <div class="border rounded p-2 h-max-fill">
+                    <b>Invitations</b>
+                    <div form-type="Users_t" path="friends.invites" suffix="invites-buttons"></div>
+
+                    <template name="invites-buttons" when="props.path.toArray().length == 3" class="w-0 nowrap">
+                        <div class="flex row">
+                            <button class="as-clickable as-button flat" data-icon="mdiCheck" data-action="acceptInvite" data-data="{id: STATE.value.friends.invites[$index].id}"></button>
+                            <button class="as-clickable as-button flat" data-icon="mdiClose" data-action="denyInvite" data-data="{id: STATE.value.friends.invites[$index].id}"></button>
+                        </div>
+                    </template>
+                </div>
+                <div class="border rounded p-2 h-max-fill">
+                    <b>Activities</b>
+                    <div form-type="Activities_t" path="activities" suffix="activities-buttons"></div>
+                </div>
+
+                <template name="activities-buttons" when="props.path.toArray().length == 2" class="w-0 nowrap">
+                    <div class="flex row">
+                        <button class="as-clickable as-button flat" data-action="activityLike" data-data="{id: STATE.value.activities[$index].id}">👍</button>
+                        <button class="as-clickable as-button flat" data-action="activityUnlike" data-data="{id: STATE.value.activities[$index].id}">!👍</button>
+                        <button class="as-clickable as-button flat" data-icon="mdiDelete" data-action="activityDelete" data-data="{id: STATE.value.activities[$index].id}"></button>
+                    </div>
+                </template>
             </div>
             <div data-tab-name="Add Friend" class="p-2 flex column gap-2 as-panel">
                 <div form-type="FriendsSearchQuery_t" path="friendsSearchQuery"></div>
@@ -166,6 +164,18 @@
                         <button class="as-clickable as-button bg-primary" data-action="addFriend" data-data="{id: STATE.value.friendsSearch.users[$index].id}">Add</button>
                     </div>
                 </template>
+            </div>
+            <div data-tab-name="User Photo" class="p-2 flex column gap-2 as-panel">
+                <div class="border p-2 gap-2 flex row">
+                    <div class="flex column gap-2">
+                        <img class="w-200 h-200 border border-black" style="border-style: dashed;" id="photo" />
+                        <button class="as-button as-clickable bg-secondary" onclick="reloadPhoto()">Reload</button>
+                    </div>
+                    <form class="flex column gap-2" onsubmit="event.preventDefault(); uploadPhoto()">
+                        <input type="file" accept="image/*" id="photoSource" />
+                        <input type="submit" value="Upload" submit class="as-button as-clickable bg-primary" />
+                    </form>
+                </div>
             </div>
         </div>
         <div class="flex column as-looker">
@@ -184,24 +194,28 @@
         function init() {
             const looker = document.getElementById("looker")
 
+            const base = new URL(location.href.includes("/examples/") ? "http://localhost:3333" : location.href)
             useRestConnection({
-                base: location.href.includes("/examples/") ? "http://localhost:3333" : undefined,
+                base,
                 actions: {
                     getLevels: { method: "GET", route: "/levels", store: ["levels"] },
                     login: { method: "POST", route: "/auth/login", store: ["auth"] },
                     register: { method: "POST", route: "/auth/register", store: ["auth"] },
                     me: { method: "GET", route: "/user", store: ["auth", "user"] },
+                    uploadPhoto: { method: "PUT", route: "/user/photo", multipart: true, store: ["auth", "user"] },
 
                     getFriends: { method: "GET", route: "/friend", store: ["friends"] },
                     searchFriends: { method: "GET", route: "/friend/search?query=:search", store: ["friendsSearch"] },
                     addFriend: { method: "POST", route: "/friend/invite" },
-                    acceptInvite: { method: "POST", route: "/friend/invite/:id/accept" },
-                    denyInvite: { method: "POST", route: "/friend/invite/:id/deny" },
+                    acceptInvite: { method: "PUT", route: "/friend/invite/:id/accept" },
+                    denyInvite: { method: "PUT", route: "/friend/invite/:id/deny" },
                     removeFriend: { method: "POST", route: "/friend/remove/:id" },
 
                     getHomeActivities: { method: "GET", route: "/activity", store: ["activities"] },
                     makeActivity: { method: "POST", route: "/activity" },
-                    activityDelete: { method: "DELETE", route: "/activity/:id" }
+                    activityDelete: { method: "DELETE", route: "/activity/:id" },
+                    activityLike: { method: "POST", route: "/activity/like/:id" },
+                    activityUnlike: { method: "DELETE", route: "/activity/like/:id" },
                 },
                 auth: ["auth", "token"],
                 errorHandler(error) {
@@ -252,7 +266,9 @@
                 points: makeOutput(),
                 steps: makeOutput(),
                 distance: makeOutput(),
-                duration: makeOutput()
+                duration: makeOutput(),
+                likesCount: makeOutput(),
+                hasLiked: makeOutput()
             })
 
             const Activities_t = Activity_t.as(Type.array).as(Type.annotate, new TableAttribute())
@@ -305,7 +321,25 @@
                 STATE.action("searchFriends", STATE.value.friendsSearchQuery)
             })
 
-            startApp({ Levels_t, Login_t, Register_t, User_t, Users_t, Auth_t, Activity_t, Activities_t, randomActivity, FriendsSearchQuery_t })
+            const photoElement = document.getElementById("photo")
+            const photoSourceElement = /** @type {HTMLInputElement} */(document.getElementById("photoSource"))
+            function uploadPhoto() {
+                const photo = photoSourceElement.files[0]
+                if (photo == null) {
+                    emitter.alert("No photo file specified")
+                    return
+                }
+
+                STATE.action("uploadPhoto", { photo })
+            }
+
+            function reloadPhoto() {
+                const iconURL = new URL(STATE.value.auth?.user?.icon ?? "/uploads/icons/default", base)
+                iconURL.searchParams.set("t", Math.random().toString().slice(2))
+                photoElement.src = iconURL.href
+            }
+
+            startApp({ Levels_t, Login_t, Register_t, User_t, Users_t, Auth_t, Activity_t, Activities_t, randomActivity, FriendsSearchQuery_t, uploadPhoto, reloadPhoto })
         }
     </script>
 </body>
